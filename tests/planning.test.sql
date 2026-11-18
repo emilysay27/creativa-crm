@@ -78,15 +78,17 @@ select pg_temp.ok(true, 'teachers can''t assign prep, approve or import');
 reset role;
 
 -- Tours: not on a day the whole school is closed (from today on); one booked before the closure stays.
+-- A day about a week out that isn't already a school closure (Thanksgiving week, winter break…), for the test closure.
+create temp table tour_day as select d::date as d from generate_series(current_date + 9, current_date + 90, interval '1 day') d where not exists (select 1 from public.school_closures c where d::date between c.starts_on and c.ends_on) and not exists (select 1 from public.school_closures c where d::date - 1 between c.starts_on and c.ends_on) order by d limit 1;
 \ir ../supabase/migrations/035_no_tour.sql
 select pg_temp.as_user(null);
-insert into public.inquiries (parent_name, phone, tour_at) values ('Tour Mom', '305 555 0111', ((current_date + 9)::text || ' 15:00+00')::timestamptz);
-insert into public.school_closures (name, starts_on, ends_on) values ('Test Closure Day', current_date + 9, current_date + 9);
-update public.inquiries set next_follow_up = current_date + 8 where parent_name = 'Tour Mom';
+insert into public.inquiries (parent_name, phone, tour_at) values ('Tour Mom', '305 555 0111', (((select d from pg_temp.tour_day))::text || ' 15:00+00')::timestamptz);
+insert into public.school_closures (name, starts_on, ends_on) values ('Test Closure Day', (select d from pg_temp.tour_day), (select d from pg_temp.tour_day));
+update public.inquiries set next_follow_up = ((select d from pg_temp.tour_day) - 1) where parent_name = 'Tour Mom';
 select pg_temp.ok(true, 'a tour already on the closed day stays (to call the family)');
-do 'begin update public.inquiries set tour_at = ((current_date + 9)::text || '' 16:00+00'')::timestamptz where parent_name = ''Tour Mom''; raise exception ''FAIL: tour on a closed day'';
+do 'begin update public.inquiries set tour_at = (((select d from pg_temp.tour_day))::text || '' 16:00+00'')::timestamptz where parent_name = ''Tour Mom''; raise exception ''FAIL: tour on a closed day'';
   exception when check_violation then null; end';
-do 'begin insert into public.inquiries (parent_name, phone, tour_at) values (''New Mom'', ''305 555 0112'', ((current_date + 9)::text || '' 15:00+00'')::timestamptz); raise exception ''FAIL: new tour on a closed day'';
+do 'begin insert into public.inquiries (parent_name, phone, tour_at) values (''New Mom'', ''305 555 0112'', (((select d from pg_temp.tour_day))::text || '' 15:00+00'')::timestamptz); raise exception ''FAIL: new tour on a closed day'';
   exception when check_violation then null; end';
 select pg_temp.ok(true, 'no new tour on a closed day');
 update public.inquiries set tour_at = ((current_date + 12)::text || ' 15:00+00')::timestamptz where parent_name = 'Tour Mom';

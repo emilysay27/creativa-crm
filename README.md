@@ -298,6 +298,17 @@ The CRM checks for new website requests every minute while it's open (and as soo
 they show up without reloading: a message pops up, **Today** shows how many came in, and the browser tab shows the
 count, until you open Today, Pipeline or All inquiries. Telegram alerts (006) keep coming as before.
 
+## Records are kept 5 years (041)
+
+Child care records must be kept on file for 5 years by law. `supabase/migrations/041_record_keeping.sql` puts a
+`keep_records` trigger on children, payments, staff, time entries, paychecks, money entries, food program claims, online
+and next-year registrations, texts to families, activity rosters with a decision or a permission slip, and the change log:
+a delete is refused unless the row was added in the last 30 days (fixing a mistake), or its date (the day a child left,
+the payment, the work day…) is more than 5 years ago. Children who are enrolled or waiting are always kept. Removing a
+contact, a pick-up person or a medicine, reopening a pay period, rebuilding a roster's untouched rows and deleting spam
+still work; `change_log` keeps a copy of what was removed. A real mistake older than that is removed by the owner in the
+SQL editor, on purpose, in one transaction: `begin; select set_config('crm.records_override', 'yes', true); delete …; commit;`
+
 ## Who changed what (012)
 
 Every change a signed-in person makes to children, contacts, classes, tuition, payments, invoices, the old sheets'
