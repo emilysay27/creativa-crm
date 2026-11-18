@@ -73,7 +73,8 @@ window.CRM_GUIDE = {
         'Check one off when it’s done; a repeating one comes back for its next date.']],
       ['Changes', 'Who changed what, newest first.', [
         'Children and contacts, tuition and payments, payroll and time, settings and access. New changes by others are counted on the tab.',
-        'Each child’s page also shows their recent changes.']],
+        'Each child’s page also shows their recent changes.',
+        'Records are kept 5 years (child care records law): children, payments, staff and their time and paychecks, money, the food program, registrations, texts to families, permission slips and this list can’t be deleted before then. Mark them Withdrawn, inactive or void instead. Delete still works for a mistake in the first 30 days, and removing a pick-up person or a medicine still works (Changes keeps a copy).']],
       ['Settings (admins)', 'How the CRM is set up.', [
         'Staff: who can sign in, their role, and access to finances and payroll.',
         'Classes: teachers, capacity, and the tuition rates (full time until 3:00, with after care until 5:45; Kindergarten by school year).',
@@ -154,7 +155,8 @@ window.CRM_GUIDE = {
         'Márquelo cuando esté hecho; uno que se repite vuelve para su próxima fecha.']],
       ['Cambios', 'Quién cambió qué, lo más nuevo primero.', [
         'Niños y contactos, matrícula y pagos, nómina y tiempo, configuración y acceso. Los cambios nuevos de otros se cuentan en la pestaña.',
-        'La página de cada niño también muestra sus cambios recientes.']],
+        'La página de cada niño también muestra sus cambios recientes.',
+        'Los registros se guardan 5 años (ley de registros de cuidado infantil): niños, pagos, personal con su tiempo y cheques, dinero, el programa de alimentos, inscripciones, textos a las familias, permisos firmados y esta lista no se pueden borrar antes. Márquelos como Withdrawn (retirado), inactivo o anulado. Borrar todavía funciona para un error en los primeros 30 días, y quitar a una persona autorizada para recoger o una medicina todavía funciona (Cambios guarda una copia).']],
       ['Configuración (administradores)', 'Cómo está preparado el CRM.', [
         'Personal: quién puede entrar, su rol y su acceso a finanzas y nómina.',
         'Clases: maestras, capacidad y las tarifas de matrícula (tiempo completo hasta las 3:00, con cuidado extendido hasta las 5:45; kínder por año escolar).',

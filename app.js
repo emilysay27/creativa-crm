@@ -3130,7 +3130,7 @@
 
     async function remove() {
       if (pays.length || invs.length) return toast('This student has invoices or payments on record. Set the status to Withdrawn instead.', true);
-      if (!confirm(`Delete ${s.name} from the enrollment list? To keep their history, set the status to Withdrawn instead.`)) return;
+      if (!confirm(`Delete ${s.name}? Only for a mistake added in the last 30 days: records are kept 5 years by law, so for a child who left, set the status to Withdrawn instead.`)) return;
       const { error } = await sb.from('students').delete().eq('id', id);
       if (error) return fail(error, 'Could not delete');
       state.students = state.students.filter((x) => x.id !== id);

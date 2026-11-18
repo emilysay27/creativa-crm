@@ -48,3 +48,8 @@
   to = "/404"
   status = 404
   force = true
+[[redirects]]
+  from = "/CLAUDE.md"
+  to = "/404"
+  status = 404
+  force = true
