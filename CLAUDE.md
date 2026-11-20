@@ -1,7 +1,8 @@
 # Creativa Academy CRM: notes for every session
 
 A child care CRM for Creativa Academy, a preschool in West Miami. The owner runs the school; the office (and teachers,
-with less access) use the CRM at crm.creativaacademy.com.
+with less access) use the CRM at crm.creativaacademy.com. Its code is the GitHub repository `emilysay27/creativa-crm`
+(moved from `rocky091500-a11y` in November 2026); the Netlify project `moonlit-kringle-bfb63a` publishes it from `main`.
 
 ## Rules that always apply
 
@@ -28,5 +29,8 @@ with less access) use the CRM at crm.creativaacademy.com.
 ## The website
 
 The public site is the Netlify project `creativamainsite` (creativaacademy.com). Its code is the GitHub repository
-`rocky091500-a11y/creativaacademy`, but some versions were published straight from a folder on the owner's computer,
-so check that the GitHub copy matches the live site before preparing an edit, and never publish without her approval.
+`emilysay27/creativaacademy` (moved from `rocky091500-a11y` in November 2026), whose own `CLAUDE.md` has the details.
+Netlify publishes it automatically from `main`: anything pushed or merged there goes live, so never update the
+website's `main` without the owner's approval. The old folder on her computer is retired; never publish from it.
+Website forms reach the CRM through Netlify's outgoing webhook to `netlify/functions/website-form.mjs`, and online
+registration posts to `submit_registration` (039).
