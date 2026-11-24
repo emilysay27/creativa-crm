@@ -3,6 +3,8 @@
 A child care CRM for Creativa Academy, a preschool in West Miami. The owner runs the school; the office (and teachers,
 with less access) use the CRM at crm.creativaacademy.com. Its code is the GitHub repository `emilysay27/creativa-crm`
 (moved from `rocky091500-a11y` in November 2026); the Netlify project `moonlit-kringle-bfb63a` publishes it from `main`.
+Netlify's GitHub app on that account needs access to both `creativa-crm` and `creativaacademy`, or updates stop
+publishing (a pull request then gets no "Deploy Preview" check).
 
 ## Rules that always apply
 
