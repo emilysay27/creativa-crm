@@ -11,10 +11,16 @@ insert into auth.users (id, email, raw_user_meta_data) values
 update public.profiles set role = 'admin', active = true where email = 'cal-admin@example.com';
 update public.profiles set active = true where email = 'cal-staff@example.com';
 
+-- The first weekday at least n days ahead when the school is open (tours can't be booked on a closed day).
+create or replace function pg_temp.open_day(n int) returns timestamptz language sql as '
+  select (d::date::text || '' 15:00+00'')::timestamptz from generate_series(current_date + n, current_date + n + 30, interval ''1 day'') d
+   where extract(isodow from d) < 6 and not exists (select 1 from public.school_closures c where d::date between c.starts_on and c.ends_on)
+   order by d limit 1';
+
 insert into public.inquiries (parent_name, phone, email, child_name, child_dob, program, stage, tour_at, assigned_to) values
   ('Ana; Comma, Test', '305-555-0001', 'ana@example.com', 'Leo', '2023-05-01', 'Early 3s', 'tour_scheduled',
-   now() + interval '2 days', '00000000-0000-0000-0000-0000000000c2'),
-  ('Lost Family', '305-555-0002', null, null, null, null, 'lost', now() + interval '3 days', null),
+   pg_temp.open_day(2), '00000000-0000-0000-0000-0000000000c2'),
+  ('Lost Family', '305-555-0002', null, null, null, null, 'lost', pg_temp.open_day(3), null),
   ('Old Tour', '305-555-0003', null, null, null, null, 'toured', now() - interval '90 days', null),
   ('No Tour', '305-555-0004', null, null, null, null, 'new', null, null);
 

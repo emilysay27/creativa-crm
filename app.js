@@ -465,7 +465,7 @@
   async function loadAll() {
     const fin = canViewFinance();
     const none = Promise.resolve({ data: [] });
-    const [p, i, c, st, set, f, pay, inv, con, oo, sig, hist, chg, msg, gt, mon, td, so, cl, ev, rg, md, pp, ac, ar, asl, nt, sbd, rf] = await Promise.all([
+    const [p, i, c, st, set, f, pay, inv, con, oo, sig, hist, chg, msg, gt, mon, td, so, cl, ev, rg, md, pp, ac, ar, asl, nt, sbd, rf, tr] = await Promise.all([
       sb.from('profiles').select('*').order('full_name'),
       selectAll('inquiries', 'created_at', false),
       sb.from('classrooms').select('*').order('sort').order('name'),
@@ -496,6 +496,8 @@
       sb.from('inquiries').select('no_tour').limit(1),                                                 // missing until 035
       sb.rpc('staff_birthdays'),                                                                       // missing until 037
       canOffice() ? sb.from('registration_forms').select('*').order('created_at', { ascending: false }).limit(300)   // missing until 039
+        : Promise.resolve({ error: true }),
+      isAdmin() || state.me.finance === 'edit' ? sb.from('text_replies').select('id').limit(1)                   // missing until 042
         : Promise.resolve({ error: true }),
     ]);
     if (p.error) return fail(p.error, 'Could not load staff');
@@ -530,6 +532,7 @@
     state.hasLog = !chg.error;
     state.unseen = chg.error ? [] : chg.data || [];
     state.hasMsgs = (isAdmin() || state.me.finance === 'edit') && !msg.error;
+    state.hasReplies = state.hasMsgs && !tr.error;   // 042: texts received, matched to families
     state.msgTpls = undefined;   // My messages and lists: loaded when Messages opens
     state.hasGroupTexts = !gt.error;
     state.hasMoney = fin && !mon.error;
@@ -3002,14 +3005,22 @@
       renderShell();
     });
     if (id && state.hasMsgs) {
-      sb.from('message_recipients').select('status, body, sent_at, name, messages(created_at, created_by)').eq('student_id', id).limit(300).then(({ data, error }) => {
+      Promise.all([
+        sb.from('message_recipients').select('status, body, sent_at, name, messages(created_at, created_by)').eq('student_id', id).limit(300),
+        state.hasReplies ? sb.from('text_replies').select('created_at, body, action, who').contains('student_ids', [id])
+          .order('created_at', { ascending: false }).limit(20) : Promise.resolve({ data: [] }),
+      ]).then(([sent, got]) => {
         const ul = $('#st-texts', drawer);
         if (!ul) return;
-        const list = (data || []).sort((a, b) => (b.messages?.created_at || '').localeCompare(a.messages?.created_at || '')).slice(0, 6);
-        ul.innerHTML = error ? '<li class="muted small">Could not load texts.</li>' : list.map((r) => `<li><span class="chg-time">${esc(fmtDateTime(r.sent_at || r.messages?.created_at))}</span>
-          <span><span class="pay-pill ps-${MSG_PILL[r.status]}">${esc(MSG_STATUS[r.status])}</span> ${esc(r.body)}
-          <span class="muted small">· to ${esc(r.name || '')}, by ${esc(staffName(r.messages?.created_by) || 'staff')}</span></span></li>`).join('')
-          || '<li class="muted small">No texts sent yet.</li>';
+        const list = [
+          ...(sent.data || []).map((r) => ({ at: r.sent_at || r.messages?.created_at || '', html: `<span class="pay-pill ps-${MSG_PILL[r.status]}">${esc(MSG_STATUS[r.status])}</span> ${esc(r.body)}
+            <span class="muted small">· to ${esc(r.name || '')}, by ${esc(staffName(r.messages?.created_by) || 'staff')}</span>` })),
+          ...(got.data || []).map((r) => ({ at: r.created_at, html: `<span class="pay-pill ps-in">${esc(REPLY_LABEL[r.action] || 'Received')}</span> ${esc(r.body)}
+            <span class="muted small">· from ${esc((r.who || '').split(' · ')[0] || 'the family')}</span>` })),
+        ].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 8);
+        ul.innerHTML = sent.error ? '<li class="muted small">Could not load texts.</li>'
+          : list.map((x) => `<li><span class="chg-time">${esc(fmtDateTime(x.at))}</span><span>${x.html}</span></li>`).join('')
+            || '<li class="muted small">No texts yet.</li>';
       });
     }
     if (id && state.hasLog) {
@@ -6255,6 +6266,7 @@
   // sends them through Twilio, between 8am and 9pm.
   const MSG_STATUS = { queued: 'Waiting', sending: 'Sending', sent: 'Sent', failed: 'Failed', opted_out: 'Opted out', canceled: 'Canceled' };
   const MSG_PILL = { queued: 'open', sending: 'open', sent: 'paid', failed: 'overdue', opted_out: 'none', canceled: 'void' };
+  const REPLY_LABEL = { message: 'Received', opt_out: 'Replied STOP', opt_in: 'Replied START' };   // 042: texts to the school's number
   const MSG_WHO = { all: 'All enrolled families', class: 'One class', owe: 'Families who owe money', late: 'Families with a late balance',
     docs: 'Families missing paperwork', waitlist: 'Waiting list families', pick: 'Families I pick', one: 'Someone else (type a number)' };
   // Examples shown until 014_message_templates.sql is run; after that the school writes and saves its own ("My messages").
@@ -6442,6 +6454,11 @@
         by themselves. Each family gets the text at the contacts set to get group texts (the Primary contact, unless you change it
         on the child’s page).</p>
       <div id="msg-lists-body"><p class="muted">Loading…</p></div></section>
+    ${state.hasReplies ? `<section class="panel msg-history"><h2>Texts received</h2>
+      <div class="table-wrap flat"><table><thead><tr><th>When</th><th>From</th><th>Message</th></tr></thead>
+        <tbody id="msg-got"><tr><td colspan="3" class="muted">Loading…</td></tr></tbody></table></div>
+      <p class="muted small">Every text to the school’s number, matched to the family by the phone numbers on the children’s pages and
+        Pipeline cards. Tap one to open the child (or the Pipeline card). A number that isn’t in the CRM shows as the number.</p></section>` : ''}
     <section class="panel msg-history"><h2>Texts sent</h2>
       <div class="table-wrap flat"><table><thead><tr><th>When</th><th>By</th><th>To</th><th>Message</th><th>Status</th></tr></thead>
         <tbody id="msg-hist"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody></table></div>
@@ -6705,6 +6722,7 @@
       });
     }
     loadMsgHistory(el);
+    if (state.hasReplies) loadReplies(el);
   }
 
   // Make or change a list (015)
@@ -6817,6 +6835,26 @@
     drawExtra();
     drawNow();
     form.name.focus();
+  }
+
+  // 042: texts received at the school's number, newest first.
+  const prettyPhone = (p) => (/^[+]1[0-9]{10}$/.test(p || '') ? `(${p.slice(2, 5)}) ${p.slice(5, 8)}-${p.slice(8)}` : p || '');
+  async function loadReplies(el) {
+    const { data, error } = await sb.from('text_replies').select('*').order('created_at', { ascending: false }).limit(100);
+    const tbody = $('#msg-got', el);
+    if (!tbody) return;
+    if (error) { tbody.innerHTML = '<tr><td colspan="3" class="muted">Could not load texts received.</td></tr>'; return; }
+    tbody.innerHTML = data.map((r) => `<tr data-got="${r.id}" ${r.student_ids?.length || r.inquiry_id ? '' : 'class="no-open"'}>
+        <td class="nowrap">${esc(fmtDateTime(r.created_at))}</td>
+        <td>${r.who ? `${esc(r.who)}<div class="muted small">${esc(prettyPhone(r.from_phone))}</div>` : esc(prettyPhone(r.from_phone))}</td>
+        <td class="small">${r.action !== 'message' ? `<span class="pay-pill ps-in">${esc(REPLY_LABEL[r.action])}</span> ` : ''}${esc(r.body)}</td></tr>`).join('')
+      || '<tr><td colspan="3" class="muted">No texts received yet.</td></tr>';
+    $$('#msg-got tr[data-got]', el).forEach((tr) => tr.addEventListener('click', () => {
+      const r = data.find((x) => x.id === tr.dataset.got);
+      const kid = (r.student_ids || []).find((sid) => state.students.some((s) => s.id === sid));
+      if (kid) openStudent(kid);
+      else if (r.inquiry_id && state.inquiries.some((i) => i.id === r.inquiry_id)) openDrawer(r.inquiry_id);
+    }));
   }
 
   async function loadMsgHistory(el) {

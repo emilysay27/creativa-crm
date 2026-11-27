@@ -142,7 +142,12 @@ texts together. Admins edit the wording, or switch texts off, on **Settings → 
 Twilio is ready).
 
 Replies: `netlify/functions/text-inbound.mjs` receives every text sent to the school's Twilio number, checks it really
-came from Twilio, and logs it on that family's timeline. **STOP** (or UNSUBSCRIBE, CANCEL, END, QUIT, PARAR) adds the
+came from Twilio, and logs it on that family's timeline. Since `042_text_replies.sql` every text is also saved in
+`text_replies` and matched to whoever has that number anywhere in the CRM: the parents and contacts on a child's page
+(any of their phones; brothers and sisters share the text), the parent phone on the child, a Pipeline card, or an
+online registration not added yet. It shows on **Messages → Texts received** and with the texts sent on the child's
+page, for the staff who see texts, and is kept 5 years. Staff phone numbers aren't in the CRM, so a text from staff
+shows as the number. **STOP** (or UNSUBSCRIBE, CANCEL, END, QUIT, PARAR) adds the
 number to `text_opt_outs` and it is never texted automatically again; **START** undoes it. Twilio sends the opt-out
 confirmation itself. With `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` set, every reply (and every STOP) is also
 posted to that Telegram chat, which is free; with `TEXT_FORWARD_TO` set, ordinary replies are also texted on to that phone

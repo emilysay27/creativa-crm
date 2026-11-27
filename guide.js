@@ -66,7 +66,8 @@ window.CRM_GUIDE = {
       ['Messages to families', 'Texts to one family, a class, a list, or everyone (needs the texting service connected).', [
         'Start from a saved message or write your own; blocks like {parent}, {child} and {balance} are filled in for each family. Check each text before sending.',
         'Lists (like TextMagic): FES moms, Kinder moms, 1st floor, 2nd floor, VPK… kept up to date from each child’s class and funding.',
-        'Families missing paperwork and families with a late balance are ready-made lists.']],
+        'Families missing paperwork and families with a late balance are ready-made lists.',
+        'Replies: every text to the school’s number shows under Messages → Texts received and on the child’s page (Texts), matched by the phone numbers on the children’s pages and Pipeline cards (brothers and sisters too). A number that isn’t in the CRM shows as the number. STOP is recorded and that number isn’t texted again.']],
       ['To do and reminders', 'What the office has to do, with reminders on Today.', [
         '+ New to-do: what, who it’s for, when it’s due, whether it repeats, and how many days before to remind.',
         'The food program claim and the SR and VPK attendance are due the 1st of every month, reminded a week before.',
@@ -148,7 +149,8 @@ window.CRM_GUIDE = {
       ['Mensajes a las familias', 'Textos a una familia, una clase, una lista o a todos (necesita el servicio de textos conectado).', [
         'Empiece con un mensaje guardado o escriba el suyo; los bloques como {parent}, {child} y {balance} se llenan para cada familia. Revise cada texto antes de enviar.',
         'Listas (como TextMagic): mamás FES, mamás de kínder, primer piso, segundo piso, VPK… se mantienen al día según la clase y los fondos de cada niño.',
-        'Las familias a las que les faltan papeles y las que tienen saldo atrasado ya son listas listas para usar.']],
+        'Las familias a las que les faltan papeles y las que tienen saldo atrasado ya son listas listas para usar.',
+        'Respuestas: cada texto al número de la escuela aparece en Mensajes → Texts received y en la página del niño (Texts), según los teléfonos en las páginas de los niños y en las tarjetas del Pipeline (también hermanos). Un número que no está en el CRM aparece como el número. STOP queda anotado y a ese número no se le vuelve a escribir.']],
       ['Pendientes y recordatorios', 'Lo que tiene que hacer la oficina, con recordatorios en Hoy.', [
         '+ Nuevo pendiente: qué, para quién, cuándo vence, si se repite y cuántos días antes recordar.',
         'El reclamo del programa de alimentos y la asistencia de SR y VPK vencen el 1 de cada mes, con recordatorio una semana antes.',

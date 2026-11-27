@@ -513,6 +513,9 @@ table.roster tr.st-graduated td { color: var(--ink-soft); }
   white-space: pre-wrap; overflow-wrap: anywhere; max-width: 420px; }
 .msg-history tbody tr { cursor: pointer; }
 .msg-history tbody tr:hover td { background: var(--cream); }
+.msg-history tbody tr.no-open { cursor: default; }                 /* a text from a number not in the CRM (042) */
+.msg-history tbody tr.no-open:hover td { background: none; }
+.pay-pill.ps-in { background: #DDE9EE; color: #3E6373; }           /* a text received (042) */
 .msg-history p.muted { margin: 10px 0 0; }
 @media (max-width: 900px) { .msg-grid { grid-template-columns: 1fr; } }
 .msg-templates .btn.on { background: var(--sage-deep); border-color: var(--sage-deep); color: var(--white); }

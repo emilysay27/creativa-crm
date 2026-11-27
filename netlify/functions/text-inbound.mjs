@@ -1,5 +1,6 @@
 // Twilio calls this when a family texts the school's Twilio number (usually a reply to a tour text).
-// The text is logged on that family's timeline in the CRM; STOP / START opt the number out / back in
+// The text is saved in the CRM (042_text_replies.sql: Messages → Texts received and the child's page, matched by the
+// phone numbers on the children's pages and Pipeline cards) and logged on a Pipeline card's timeline; STOP / START opt the number out / back in
 // (Twilio itself sends the "you're unsubscribed" confirmation). So someone sees replies right away,
 // they are also posted to Creativa's Telegram chat (free) when TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID
 // are set, and/or texted on to TEXT_FORWARD_TO (costs one more text each).
@@ -58,7 +59,8 @@ export async function handle(req, env, fetchImpl = fetch, log = console.log) {
   } catch (e) {
     log(`text-inbound: could not log the text from ${from}: ${e.message}`);
   }
-  if (who && !who.inquiry_id) log(`text-inbound: text from ${from}, not a number in the CRM (${who.action})`);
+  // parent_name is whoever has the number: a Pipeline family or, since 042, a parent or contact on a child's page.
+  if (who && !who.inquiry_id && !who.parent_name) log(`text-inbound: text from ${from}, not a number in the CRM (${who.action})`);
 
   const label = who?.parent_name ? `${who.parent_name} (${from})` : from;
   if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
